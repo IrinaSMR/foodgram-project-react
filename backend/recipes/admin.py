@@ -11,7 +11,7 @@ class BaseAdminSettings(admin.ModelAdmin):
 
 class IngredientRecipeInline(admin.TabularInline):
     """
-    Параметры настроек админки
+    Параметры админки для
     модели ингредиентов в рецепте.
     """
     model = IngredientRecipe
@@ -64,12 +64,12 @@ class RecipeAdmin(BaseAdminSettings):
     def in_favorite(self, obj):
         return obj.in_favorite.all().count()
 
-    in_favorite.short_description = 'Количество добавлений в избранное'
+    in_favorite.short_description = 'Количество элементов в избранном'
 
 
 class IngredientRecipeAdmin(admin.ModelAdmin):
     """
-    Кастомизация админки (управление ингридиентами в рецептах).
+    Кастомизация админки (управление ингредиентами в рецептах).
     """
     list_display = (
         'recipe',
