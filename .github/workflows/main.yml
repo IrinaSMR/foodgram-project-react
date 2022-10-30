@@ -1,4 +1,3 @@
-# .github/workflows/**main.yml**
 name: foodgram workflow
 
 on: [push]
@@ -73,7 +72,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             sudo docker compose down
-            sudo docker pull avagners/foodgram-backend:latest
+            sudo docker pull irinasmr/foodgram-backend:latest
             touch .env
             echo SECRET_KEY='${{ secrets.SECRET_KEY }}' >> .env 
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
