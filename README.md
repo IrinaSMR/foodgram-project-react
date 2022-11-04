@@ -1,7 +1,7 @@
 ## Продуктовый помощник FOODGRAM
 ***
 
-![Django-app workflow](https://github.com/IrinaSMR/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)
+![Django-app workflow](https://github.com/IrinaSMR/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 ***
 
 ### Стек технологий:
