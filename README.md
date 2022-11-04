@@ -118,7 +118,7 @@ sudo  docker-compose --version
 Скопируйте подготовленные файлы docker-compose.yaml и nginx.conf из проекта на сервер:
 
 ```
-scp docker-compose.yaml <username>@<host>:/home/<username>/docker-compose.yml
+scp docker-compose.yml <username>@<host>:/home/<username>/docker-compose.yml
 scp nginx.conf <username>@<host>:nginx.conf
 ```
 
