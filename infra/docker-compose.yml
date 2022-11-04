@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: irinasmr/backend:v1
+    image: irinasmr/foodgram-backend:latest
     volumes:
       - ../static/:/app/static/
       - ../media/:/app/media/recipes/
@@ -20,7 +20,7 @@ services:
     restart: always
 
   frontend:
-    image: irinasmr/frontend:v1
+    image: irinasmr/foodgram-frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
