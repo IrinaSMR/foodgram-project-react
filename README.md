@@ -114,13 +114,12 @@ sudo chmod +x /usr/local/bin/docker-compose
 sudo  docker-compose --version
 ```
 
-В файле nginx/default.conf в строке server_name укажите IP виртуальной машины (сервера).
-Скопируйте подготовленные файлы docker-compose.yaml и nginx/default.conf из проекта на сервер:
+В файле nginx.conf в строке server_name укажите IP виртуальной машины (сервера).
+Скопируйте подготовленные файлы docker-compose.yaml и nginx.conf из проекта на сервер:
 
 ```
-scp docker-compose.yaml <username>@<host>:/home/<username>/docker-compose.yaml
-mkdir nginx
-scp default.conf <username>@<host>:nginx/default.conf
+scp docker-compose.yaml <username>@<host>:/home/<username>/docker-compose.yml
+scp nginx.conf <username>@<host>:nginx.conf
 ```
 
 ### После успешного деплоя:
