@@ -115,7 +115,7 @@ sudo  docker-compose --version
 ```
 
 В файле nginx.conf в строке server_name укажите IP виртуальной машины (сервера).
-Скопируйте подготовленные файлы docker-compose.yaml и nginx.conf из проекта на сервер:
+Скопируйте подготовленные файлы docker-compose.yml и nginx.conf из проекта на сервер:
 
 ```
 scp docker-compose.yml <username>@<host>:/home/<username>/docker-compose.yml

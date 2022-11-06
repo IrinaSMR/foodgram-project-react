@@ -20,6 +20,7 @@ djoser==2.1.0
 drf-base64==2.0
 flake8==4.0.1
 fonttools==4.34.4
+gobject-2.0-0
 gunicorn==20.0.4
 html5lib==1.1
 idna==3.3
