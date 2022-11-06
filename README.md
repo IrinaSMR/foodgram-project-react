@@ -134,7 +134,7 @@ docker-compose exec backend python manage.py collectstatic --no-input
 
 ```
 (опционально) docker-compose exec backend python manage.py makemigrations
-docker-compose exec backend python manage.py migrate -noinput
+docker-compose exec backend python manage.py migrate --no-input
 ```
 
 Создайте суперпользователя:
