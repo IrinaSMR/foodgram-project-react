@@ -13,6 +13,9 @@ router.register('recipes', RecipeViewSet, basename='recipes')
 router.register('tags', TagViewSet, basename='tags')
 
 urlpatterns = [
+    path('recipes/download_shopping_cart/<int:id>',
+         download_shopping_cart,
+         name='download_shopping_cart'),
     path('auth/', include('djoser.urls.authtoken')),
     path('', include('djoser.urls')),
     path('', include(router.urls)),
