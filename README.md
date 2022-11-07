@@ -111,7 +111,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 Проверьте корректность установки Docker-compose:
 
 ```
-sudo  docker-compose --version
+sudo docker-compose --version
 ```
 
 В файле nginx.conf в строке server_name укажите IP виртуальной машины (сервера).
@@ -127,20 +127,20 @@ scp nginx.conf <username>@<host>:nginx.conf
 Соберите файлы статики:
 
 ```
-docker-compose exec backend python manage.py collectstatic --no-input 
+sudo docker-compose exec backend python manage.py collectstatic --no-input 
 ```
 
 Выполните миграции:
 
 ```
-(опционально) docker-compose exec backend python manage.py makemigrations
-docker-compose exec backend python manage.py migrate --no-input
+(опционально) sudo docker-compose exec backend python manage.py makemigrations (для всех приложений отдельно)
+sudo docker-compose exec backend python manage.py migrate --no-input (для всех приложений отдельно)
 ```
 
 Создайте суперпользователя:
 
 ```
-docker-compose exec backend python manage.py createsuperuser
+sudo docker-compose exec backend python manage.py createsuperuser
 ```
 
 Загрузите в базу данных ингредиенты командой:
