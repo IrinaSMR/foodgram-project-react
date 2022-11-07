@@ -16,7 +16,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('auth/', include('djoser.urls.authtoken')),
     path('', include('djoser.urls')),
-    path('recipes/download_shopping_cart/',
+    path('download_shopping_cart/',
          download_shopping_cart,
          name='download_shopping_cart'),
 ]
