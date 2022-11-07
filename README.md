@@ -148,6 +148,13 @@ sudo docker-compose exec backend python manage.py createsuperuser
 ```
 sudo docker compose exec backend python manage.py load_ingredients
 ```
+
+Скопируйте предустановленные данные json:
+
+```
+sudo docker-compose exec backend python manage.py loadmodels --path 'recipes/data/ingredients.json'
+```
+
 ***
 
 ## Проект развернут по адресу:
@@ -160,7 +167,7 @@ http://84.201.156.75/api/ - API проекта
 
 ## Документация API Foodgram
 
-http://84.201.156.75/api/docs/redoc.html
+http://84.201.156.75/redoc/
 
 ## Author
 - IrinaSMR
