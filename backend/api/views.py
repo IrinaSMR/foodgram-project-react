@@ -98,8 +98,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """
         if self.request.method == 'GET':
             return RecipeSerializer
-        else:
-            return RecipeSerializerPost
+        return RecipeSerializerPost
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
