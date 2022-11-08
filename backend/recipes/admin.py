@@ -1,117 +1,105 @@
-"""
-Настройка админ зоны проекта Foodgram.
-"""
-
 from django.contrib import admin
 
-from users.models import User
-from .models import (Cart, Favorite, Subscribe, Ingredient, IngredientRecipe,
-                     Recipe, Tag, TagRecipe)
+from .models import Cart, Favorite, Ingredient, IngredientRecipe, Recipe, Tag
+
+
+class BaseAdminSettings(admin.ModelAdmin):
+    """Базовая кастомизация админки."""
+    empty_value_display = '-пусто-'
+    list_filter = ('author', 'name', 'tags')
 
 
 class IngredientRecipeInline(admin.TabularInline):
     """
-    Параметры настроек админ зоны
+    Параметры админки для
     модели ингредиентов в рецепте.
     """
     model = IngredientRecipe
     extra = 0
 
 
-class TagRecipeInline(admin.TabularInline):
+class TagAdmin(BaseAdminSettings):
     """
-    Параметры настроек админ зоны
-    модели тэгов рецепта.
+    Кастомизация админки (управление тегами).
     """
-    model = TagRecipe
-    extra = 0
-
-
-class UserAdmin(admin.ModelAdmin):
-    """
-    Параметры админ зоны пользователя.
-    """
-    list_display = ('username', 'email', 'id')
-    search_fields = ('username', 'email')
-    empty_value_display = '-пусто-'
-    list_filter = ('username', 'email')
-
-
-class IngredientAdmin(admin.ModelAdmin):
-    """
-    Параметры админ зоны продуктов.
-    """
-    list_display = ('name', 'measurement_unit')
-    search_fields = ('name', )
-    empty_value_display = '-пусто-'
+    list_display = (
+        'name',
+        'color',
+        'slug'
+    )
+    list_display_links = ('name',)
+    search_fields = ('name',)
     list_filter = ('name',)
 
 
-class TagAdmin(admin.ModelAdmin):
+class IngredientAdmin(BaseAdminSettings):
     """
-    Параметры админ зоны тэгов.
+    Кастомизация админки (управление ингредиентами).
     """
-    list_display = ('name', 'color', 'slug')
-    search_fields = ('name', )
-    empty_value_display = '-пусто-'
+    list_display = (
+        'name',
+        'measurement_unit'
+    )
+    list_display_links = ('name',)
+    search_fields = ('name',)
     list_filter = ('name',)
 
 
-class CartAdmin(admin.ModelAdmin):
+class RecipeAdmin(BaseAdminSettings):
     """
-    Параметры админ зоны продуктовой корзины.
+    Кастомизация админки (управление рецептами).
     """
-    list_display = ('user', 'recipe', 'id')
-    search_fields = ('user', )
-    empty_value_display = '-пусто-'
-    list_filter = ('user',)
+    list_display = (
+        'name',
+        'author',
+        'in_favorite'
+    )
+    list_display_links = ('name',)
+    search_fields = ('name',)
+    list_filter = ('author', 'name', 'tags')
+    readonly_fields = ('in_favorite',)
+    filter_horizontal = ('tags',)
+    inlines = (IngredientRecipeInline,)
+
+    def in_favorite(self, obj):
+        return obj.in_favorite.all().count()
+
+    in_favorite.short_description = 'Количество элементов в избранном'
+
+
+class IngredientRecipeAdmin(admin.ModelAdmin):
+    """
+    Кастомизация админки (управление ингредиентами в рецептах).
+    """
+    list_display = (
+        'recipe',
+        'ingredient',
+        'amount',
+    )
+    list_filter = ('recipe', 'ingredient')
 
 
 class FavoriteAdmin(admin.ModelAdmin):
     """
-    Параметры админ зоны избранных рецептов.
+    Кастомизация админки (управление избранными рецептами).
     """
     list_display = ('user', 'recipe')
-    search_fields = ('user', )
-    empty_value_display = '-пусто-'
-    list_filter = ('user',)
+    list_filter = ('user', 'recipe')
+    search_fields = ('user', 'recipe')
 
 
-class RecipeAdmin(admin.ModelAdmin):
+class CartAdmin(admin.ModelAdmin):
     """
-    Параметры админ зоны рецептов.
+    Кастомизация админки (управление корзиной).
     """
-
-    inlines = (IngredientRecipeInline, TagRecipeInline,)
-    list_display = ('name', 'author', 'cooking_time',
-                    'id', 'count_favorite', 'pub_date')
-    search_fields = ('name', 'author', 'tags')
-    empty_value_display = '-пусто-'
-    list_filter = ('name', 'author', 'tags')
-
-    def count_favorite(self, obj):
-        """
-        Метод для подсчета общего числа
-        добавлений этого рецепта в избранное.
-        """
-        return Favorite.objects.filter(recipe=obj).count()
-    count_favorite.short_description = 'Число добавлении в избранное'
+    list_display = ('recipe', 'user')
+    list_filter = ('recipe', 'user')
+    search_fields = ('user',)
 
 
-class SubscribeAdmin(admin.ModelAdmin):
-    """
-    Параметры админ зоны.
-    """
-    list_display = ('user', 'following')
-    search_fields = ('user', )
-    empty_value_display = '-пусто-'
-    list_filter = ('user',)
-
-
-admin.site.register(Cart, CartAdmin)
-admin.site.register(Favorite, FavoriteAdmin)
-admin.site.register(User, UserAdmin)
-admin.site.register(Subscribe, SubscribeAdmin)
-admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag, TagAdmin)
+admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(IngredientRecipe, IngredientRecipeAdmin)
+admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(Cart, CartAdmin)
