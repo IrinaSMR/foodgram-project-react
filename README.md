@@ -146,7 +146,7 @@ sudo docker-compose exec backend python manage.py createsuperuser
 Загрузите в базу данных ингредиенты командой:
 
 ```
-sudo docker compose exec backend python manage.py load_ingredients
+sudo docker-compose exec backend python manage.py load_ingredients
 ```
 ***
 
