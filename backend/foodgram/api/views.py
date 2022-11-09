@@ -4,13 +4,14 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import api_view
+from rest_framework.decorators import action
 from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from .filters import IngredientFilter, RecipeFilter
+from .filters import IngredientSearchFilter, RecipeFilterSet
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrAdminOrReadOnly
 from .serializers import (CartSerializer, CreateRecipeSerializer,
@@ -69,7 +70,7 @@ class RecipeViewSet(ModelViewSet):
     serializer_class = RecipeSerializer
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = RecipeFilter
+    filterset_class = RecipeFilterSet
     permission_classes = (IsAuthorOrAdminOrReadOnly, IsAuthenticatedOrReadOnly)
 
     def get_serializer_class(self):
@@ -118,7 +119,7 @@ class RecipeViewSet(ModelViewSet):
 class IngredientViewSet(ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (IngredientFilter,)
+    filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name',)
 
 
