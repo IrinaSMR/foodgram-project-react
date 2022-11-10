@@ -100,6 +100,32 @@ class RecipeViewSet(ModelViewSet):
             request, pk, serializers=CartSerializer
         )
 
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=(IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request):
+        shoping_list = "Список покупок:\n\n"
+        user = request.user
+        ingredients = (
+            IngredientRecipe.objects.filter(recipe__shopping_cart__user=user)
+            .values(
+                "ingredient__name",
+                "ingredient__measurement_unit",
+            )
+            .annotate(total_amount=Sum("amount"))
+        )
+        for position, ingredient in enumerate(ingredients, start=1):
+            shoping_list += (
+                f'{ingredient["ingredient__name"]} '
+                f'{ingredient["total_amount"]} '
+                f'{ingredient["ingredient__measurement_unit"]}\n'
+            )
+        response = HttpResponse(shoping_list, "Content-Type: text/plain")
+        response["Content-Disposition"] = 'attachment; filename="BuyList.txt"'
+        return response
+
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
         return self.delete_method_for_actions(
