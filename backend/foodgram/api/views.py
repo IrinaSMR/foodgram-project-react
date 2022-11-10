@@ -1,10 +1,10 @@
-from django.db.models import Sum
-from django.http import HttpResponse
+# from django.db.models import Sum
+# from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
-from rest_framework.decorators import api_view
+# from rest_framework.decorators import api_view
 from rest_framework.decorators import action
 from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -20,6 +20,7 @@ from .serializers import (CartSerializer, CreateRecipeSerializer,
                           RecipeSerializer, TagSerializer)
 from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
                             Recipe, Tag)
+from recipes.utils import shopping_list_txt
 from users.models import Follow, User
 
 
@@ -100,32 +101,6 @@ class RecipeViewSet(ModelViewSet):
             request, pk, serializers=CartSerializer
         )
 
-    @action(
-        detail=False,
-        methods=['get'],
-        permission_classes=(IsAuthenticated,)
-    )
-    def download_shopping_cart(self, request):
-        shoping_list = "Список покупок:\n\n"
-        user = request.user
-        ingredients = (
-            IngredientRecipe.objects.filter(recipe__shopping_cart__user=user)
-            .values(
-                "ingredient__name",
-                "ingredient__measurement_unit",
-            )
-            .annotate(total_amount=Sum("amount"))
-        )
-        for position, ingredient in enumerate(ingredients, start=1):
-            shoping_list += (
-                f'{ingredient["ingredient__name"]} '
-                f'{ingredient["total_amount"]} '
-                f'{ingredient["ingredient__measurement_unit"]}\n'
-            )
-        response = HttpResponse(shoping_list, "Content-Type: text/plain")
-        response["Content-Disposition"] = 'attachment; filename="BuyList.txt"'
-        return response
-
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
         return self.delete_method_for_actions(
@@ -140,6 +115,26 @@ class RecipeViewSet(ModelViewSet):
     def delete_favorite(self, request, pk):
         return self.delete_method_for_actions(
             request=request, pk=pk, model=Favorite)
+
+    @action(detail=False, methods=['get'],
+            permission_classes=[IsAuthenticated])
+    def download_shopping_cart(self, request):
+        """Cкачивание списка ингридиентов."""
+        shopping_dict = {}
+        ingredients = IngredientRecipe.objects.filter(
+            recipe__shopping_cart__user=request.user).values(
+            'ingredient__name', 'ingredient__measurement_unit', 'amount'
+        )
+        for obj in ingredients:
+            ingredient = obj['ingredient__name']
+            if ingredient not in shopping_dict:
+                shopping_dict[ingredient] = {
+                    'measurement_unit': obj['ingredient__measurement_unit'],
+                    'amount': obj['amount']
+                }
+            else:
+                shopping_dict[ingredient]['amount'] += obj['amount']
+        return shopping_list_txt(shopping_dict, request.user)
 
 
 class IngredientViewSet(ModelViewSet):
