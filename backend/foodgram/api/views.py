@@ -119,7 +119,7 @@ class RecipeViewSet(ModelViewSet):
     @action(detail=False, methods=['get'],
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
-        """Cкачивание списка ингридиентов."""
+        """Cкачивание списка ингредиентов."""
         shopping_dict = {}
         ingredients = IngredientRecipe.objects.filter(
             recipe__shopping_cart__user=request.user).values(
