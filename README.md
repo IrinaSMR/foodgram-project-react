@@ -119,8 +119,7 @@ sudo docker-compose --version
 
 ```
 scp docker-compose.yml <username>@<host>:/home/<username>/docker-compose.yml
-mkdir nginx
-scp default.conf <username>@<host>:nginx/default.conf
+scp nginx.conf <username>@<host>:nginx.conf
 ```
 
 ### После успешного деплоя:
