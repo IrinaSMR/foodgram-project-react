@@ -128,7 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-node_modules/
-pyproject.toml
-media/
-vscode/
+# .idea
+.idea
