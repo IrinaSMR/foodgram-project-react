@@ -6,7 +6,7 @@ from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.decorators import action
-from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
+from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -26,12 +26,12 @@ from users.models import Follow, User
 class UsersViewSet(UserViewSet):
     pagination_class = CustomPagination
 
-    @action(['get'], detail=False, permission_classes=[IsAuthenticated])
+    @action(['GET'], detail=False, permission_classes=[IsAuthenticated])
     def me(self, request, *args, **kwargs):
         self.get_object = self.get_instance
         return self.retrieve(request, *args, **kwargs)
 
-    @action(methods=['get'], detail=False)
+    @action(methods=['GET'], detail=False)
     def subscriptions(self, request):
         subscriptions_list = self.paginate_queryset(
             User.objects.filter(following__user=request.user)
@@ -43,7 +43,7 @@ class UsersViewSet(UserViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @action(methods=['post', 'delete'], detail=True)
+    @action(methods=['POST', 'DELETE'], detail=True)
     def subscribe(self, request, id):
         if request.method != 'POST':
             subscription = get_object_or_404(
@@ -74,7 +74,7 @@ class RecipeViewSet(ModelViewSet):
     permission_classes = (IsAuthorOrAdminOrReadOnly, IsAuthenticatedOrReadOnly)
 
     def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
+        if self.request.method == 'GET':
             return RecipeSerializer
         return CreateRecipeSerializer
 
@@ -94,7 +94,8 @@ class RecipeViewSet(ModelViewSet):
         model_instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, permission_classes=[IsAuthenticated],
+            methods=['POST'])
     def shopping_cart(self, request, pk):
         return self.post_method_for_actions(
             request=request, pk=pk, serializers=CartSerializer
@@ -105,7 +106,8 @@ class RecipeViewSet(ModelViewSet):
         return self.delete_method_for_actions(
             request=request, pk=pk, model=Cart)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, permission_classes=[IsAuthenticated],
+            methods=['POST'])
     def favorite(self, request, pk):
         return self.post_method_for_actions(
             request=request, pk=pk, serializers=FavoriteSerializer)

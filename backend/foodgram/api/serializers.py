@@ -101,14 +101,14 @@ class RecipeSerializer(ModelSerializer):
         if request.user.is_anonymous:
             return False
         return Favorite.objects.filter(
-            user=request.user, recipe__id=obj.id).exists()
+            user=request.user, recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
         return Cart.objects.filter(
-            user=request.user, recipe__id=obj.id).exists()
+            user=request.user, recipe=obj).exists()
 
 
 class CreateIngredientRecipeSerializer(ModelSerializer):
@@ -210,7 +210,7 @@ class CreateRecipeSerializer(ModelSerializer):
         ).data
 
 
-class RecipeShortInfo(ModelSerializer):
+class RecipeShortInfoSerializer(ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -235,7 +235,7 @@ class CartSerializer(ModelSerializer):
     def to_representation(self, instance):
         request = self.context.get('request')
         context = {'request': request}
-        return RecipeShortInfo(instance.recipe, context=context).data
+        return RecipeShortInfoSerializer(instance.recipe, context=context).data
 
 
 class FavoriteSerializer(ModelSerializer):
@@ -257,7 +257,7 @@ class FavoriteSerializer(ModelSerializer):
     def to_representation(self, instance):
         request = self.context.get('request')
         context = {'request': request}
-        return RecipeShortInfo(
+        return RecipeShortInfoSerializer(
             instance.recipe, context=context).data
 
 
@@ -280,11 +280,11 @@ class FollowListSerializer(ModelSerializer):
         queryset = self.context.get('request')
         recipes_limit = queryset.query_params.get('recipes_limit')
         if not recipes_limit:
-            return RecipeShortInfo(
+            return RecipeShortInfoSerializer(
                 Recipe.objects.filter(author=author),
                 many=True, context={'request': queryset}
             ).data
-        return RecipeShortInfo(
+        return RecipeShortInfoSerializer(
             Recipe.objects.filter(author=author)[:int(recipes_limit)],
             many=True,
             context={'request': queryset}
