@@ -1,7 +1,8 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .views import IngredientViewSet, RecipeViewSet, TagViewSet, UsersViewSet
+from .views import (IngredientViewSet, RecipeViewSet, TagViewSet,
+                    UsersViewSet, download_shopping_cart)
 
 app_name = 'api'
 
@@ -13,6 +14,7 @@ router.register('recipes', RecipeViewSet, basename='recipes')
 router.register('tags', TagViewSet, basename='tags')
 
 urlpatterns = [
+    path('recipes/download_shopping_cart', download_shopping_cart),
     path('', include(router.urls)),
     path('auth/', include('djoser.urls.authtoken')),
 ]
