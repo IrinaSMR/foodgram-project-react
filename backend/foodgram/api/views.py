@@ -97,7 +97,7 @@ class RecipeViewSet(ModelViewSet):
     @action(detail=True, methods=['post'])
     def shopping_cart(self, request, pk):
         return self.post_method_for_actions(
-            request, pk, serializers=CartSerializer
+            request=request, pk=pk, serializers=CartSerializer
         )
 
     @shopping_cart.mapping.delete
