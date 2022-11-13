@@ -26,12 +26,12 @@ from users.models import Follow, User
 class UsersViewSet(UserViewSet):
     pagination_class = CustomPagination
 
-    @action(['get'], detail=False, permission_classes=[IsAuthenticated])
+    @action(['GET'], detail=False, permission_classes=[IsAuthenticated])
     def me(self, request, *args, **kwargs):
         self.get_object = self.get_instance
         return self.retrieve(request, *args, **kwargs)
 
-    @action(methods=['get'], detail=False)
+    @action(methods=['GET'], detail=False)
     def subscriptions(self, request):
         subscriptions_list = self.paginate_queryset(
             User.objects.filter(following__user=request.user)
@@ -43,7 +43,7 @@ class UsersViewSet(UserViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @action(methods=['post', 'delete'], detail=True)
+    @action(methods=['POST', 'DELETE'], detail=True)
     def subscribe(self, request, id):
         if request.method != 'POST':
             subscription = get_object_or_404(
@@ -105,7 +105,7 @@ class RecipeViewSet(ModelViewSet):
         return self.delete_method_for_actions(
             request=request, pk=pk, model=Cart)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['POST'])
     def favorite(self, request, pk):
         return self.post_method_for_actions(
             request=request, pk=pk, serializers=FavoriteSerializer)
@@ -132,7 +132,7 @@ class TagViewSet(ModelViewSet):
 def download_shopping_cart(request):
     ingredient_list = "Cписок покупок:"
     ingredients = IngredientRecipe.objects.filter(
-        recipe__shopping_cart__user=request.user
+        recipe__cart__user=request.user
     ).values(
         'ingredient__name', 'ingredient__measurement_unit'
     ).annotate(amount=Sum('amount'))
