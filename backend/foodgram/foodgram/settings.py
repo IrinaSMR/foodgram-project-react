@@ -150,3 +150,7 @@ DJOSER = {
         'user': ['rest_framework.permissions.IsAuthenticated'],
     },
 }
+
+
+FOODGRAM = 'Foodgram'
+SHOPPING_CART = 'Привет, {username}! Вот твой список покупок:'

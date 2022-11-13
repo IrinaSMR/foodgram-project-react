@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
-from rest_framework.decorators import api_view
+# from rest_framework.decorators import api_view
 from rest_framework.decorators import action
 from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -21,6 +21,7 @@ from .serializers import (CartSerializer, CreateRecipeSerializer,
 from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
                             Recipe, Tag)
 from users.models import Follow, User
+from recipes.utils import shopping_list_txt
 
 
 class UsersViewSet(UserViewSet):
@@ -105,6 +106,25 @@ class RecipeViewSet(ModelViewSet):
         return self.delete_method_for_actions(
             request=request, pk=pk, model=Cart)
 
+    @action(detail=False, methods=['GET'],
+            permission_classes=[IsAuthenticated])
+    def download_shopping_cart(self, request):
+        shopping_dict = {}
+        ingredients = IngredientRecipe.objects.filter(
+            recipe__cart__user=request.user).values(
+            'ingredient__name', 'ingredient__measurement_unit', 'amount'
+        )
+        for obj in ingredients:
+            ingredient = obj['ingredient__name']
+            if ingredient not in shopping_dict:
+                shopping_dict[ingredient] = {
+                    'measurement_unit': obj['ingredient__measurement_unit'],
+                    'amount': obj['amount']
+                }
+            else:
+                shopping_dict[ingredient]['amount'] += obj['amount']
+        return shopping_list_txt(shopping_dict, request.user)
+
     @action(detail=True, methods=['POST'])
     def favorite(self, request, pk):
         return self.post_method_for_actions(
@@ -128,22 +148,22 @@ class TagViewSet(ModelViewSet):
     serializer_class = TagSerializer
 
 
-@api_view(['GET'])
-def download_shopping_cart(request):
-    ingredient_list = "Cписок покупок:"
-    ingredients = IngredientRecipe.objects.filter(
-        recipe__cart__user=request.user
-    ).values(
-        'ingredient__name', 'ingredient__measurement_unit'
-    ).annotate(amount=Sum('amount'))
-    for num, i in enumerate(ingredients):
-        ingredient_list += (
-            f"\n{i['ingredient__name']} - "
-            f"{i['amount']} {i['ingredient__measurement_unit']}"
-        )
-        if num < ingredients.count() - 1:
-            ingredient_list += ', '
-    file = 'shopping_list'
-    response = HttpResponse(ingredient_list, 'Content-Type: application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
-    return response
+# @api_view(['GET'])
+# def download_shopping_cart(request):
+#     ingredient_list = "Cписок покупок:"
+#     ingredients = IngredientRecipe.objects.filter(
+#         recipe__cart__user=request.user
+#     ).values(
+#         'ingredient__name', 'ingredient__measurement_unit'
+#     ).annotate(amount=Sum('amount'))
+#     for num, i in enumerate(ingredients):
+#         ingredient_list += (
+#             f"\n{i['ingredient__name']} - "
+#             f"{i['amount']} {i['ingredient__measurement_unit']}"
+#         )
+#         if num < ingredients.count() - 1:
+#             ingredient_list += ', '
+#     file = 'shopping_list'
+#     response = HttpResponse(ingredient_list, 'Content-Type: application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
+#     return response
