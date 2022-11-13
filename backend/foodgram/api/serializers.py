@@ -82,6 +82,7 @@ class RecipeSerializer(ModelSerializer):
     ingredients = IngredientRecipeSerializer(
         many=True,
         read_only=True,
+        source='ingredients_recipe',
     )
     author = UsersSerializer(read_only=True)
     is_in_shopping_cart = SerializerMethodField(read_only=True)
@@ -104,7 +105,7 @@ class RecipeSerializer(ModelSerializer):
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        if not request or request.user.is_anonymous:
+        if request.user.is_anonymous:
             return False
         return Cart.objects.filter(
             user=request.user, recipe__id=obj.id).exists()
