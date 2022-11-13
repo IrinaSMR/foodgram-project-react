@@ -210,10 +210,10 @@ class CreateRecipeSerializer(ModelSerializer):
         ).data
 
 
-class RecipeShortInfo(ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+# class RecipeShortInfo(ModelSerializer):
+#     class Meta:
+#         model = Recipe
+#         fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class CartSerializer(ModelSerializer):
