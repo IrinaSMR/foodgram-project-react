@@ -6,7 +6,7 @@ from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticated,
+from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -26,12 +26,12 @@ from users.models import Follow, User
 class UsersViewSet(UserViewSet):
     pagination_class = CustomPagination
 
-    @action(['GET'], detail=False, permission_classes=[IsAuthenticated])
+    @action(['get'], detail=False, permission_classes=[IsAuthenticated])
     def me(self, request, *args, **kwargs):
         self.get_object = self.get_instance
         return self.retrieve(request, *args, **kwargs)
 
-    @action(methods=['GET'], detail=False)
+    @action(methods=['get'], detail=False)
     def subscriptions(self, request):
         subscriptions_list = self.paginate_queryset(
             User.objects.filter(following__user=request.user)
@@ -43,7 +43,7 @@ class UsersViewSet(UserViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @action(methods=['POST', 'DELETE'], detail=True)
+    @action(methods=['post', 'delete'], detail=True)
     def subscribe(self, request, id):
         if request.method != 'POST':
             subscription = get_object_or_404(
@@ -74,7 +74,7 @@ class RecipeViewSet(ModelViewSet):
     permission_classes = (IsAuthorOrAdminOrReadOnly, IsAuthenticatedOrReadOnly)
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method in SAFE_METHODS:
             return RecipeSerializer
         return CreateRecipeSerializer
 
@@ -94,11 +94,10 @@ class RecipeViewSet(ModelViewSet):
         model_instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, permission_classes=[IsAuthenticated],
-            methods=['POST'])
+    @action(detail=True, methods=['post'])
     def shopping_cart(self, request, pk):
         return self.post_method_for_actions(
-            request=request, pk=pk, serializers=CartSerializer
+            request, pk, serializers=CartSerializer
         )
 
     @shopping_cart.mapping.delete
@@ -106,8 +105,7 @@ class RecipeViewSet(ModelViewSet):
         return self.delete_method_for_actions(
             request=request, pk=pk, model=Cart)
 
-    @action(detail=True, permission_classes=[IsAuthenticated],
-            methods=['POST'])
+    @action(detail=True, methods=['post'])
     def favorite(self, request, pk):
         return self.post_method_for_actions(
             request=request, pk=pk, serializers=FavoriteSerializer)
@@ -134,7 +132,7 @@ class TagViewSet(ModelViewSet):
 def download_shopping_cart(request):
     ingredient_list = "Cписок покупок:"
     ingredients = IngredientRecipe.objects.filter(
-        recipe__carts__user=request.user
+        recipe__shopping_cart__user=request.user
     ).values(
         'ingredient__name', 'ingredient__measurement_unit'
     ).annotate(amount=Sum('amount'))

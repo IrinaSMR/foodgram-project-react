@@ -119,7 +119,7 @@ class IngredientRecipe(models.Model):
     )
 
     class Meta:
-        default_related_name = 'ingredients_recipe'
+        default_related_name = 'ingridients_recipe'
         constraints = (
             models.UniqueConstraint(
                 fields=('recipe', 'ingredient',),
@@ -164,7 +164,6 @@ class Cart(models.Model):
     """Модель корзины."""
     recipe = models.ForeignKey(
         Recipe,
-        related_name='carts',
         on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
