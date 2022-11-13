@@ -94,16 +94,56 @@ class RecipeViewSet(ModelViewSet):
         model_instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['post'])
-    def shopping_cart(self, request, pk):
-        return self.post_method_for_actions(
-            request, pk, serializers=CartSerializer
-        )
+    @action(
+        detail=True,
+        methods=["POST", "DELETE"],
+        permission_classes=(IsAuthenticated,),
+    )
+    def shopping_cart(self, request, *args, **kwargs):
+        user = self.request.user
+        recipe = get_object_or_404(Recipe, id=int(kwargs["pk"]))
+        shopping_cart = Cart.objects.filter(user=user, recipe=recipe)
+        if user.is_anonymous:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        if request.method == "POST":
+            if shopping_cart.exists():
+                data = {
+                    "errors": ("Вы уже добавили этот рецепт список покупок")
+                }
+                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+            cart = Cart.objects.create(user=user, recipe=recipe)
+            serializer = CartSerializer(cart.recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        elif request.method == "DELETE":
+            if not shopping_cart.exists():
+                data = {"errors": ("Такого рецепта нет в списке покупок")}
+                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+            shopping_cart.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @shopping_cart.mapping.delete
-    def delete_shopping_cart(self, request, pk):
-        return self.delete_method_for_actions(
-            request=request, pk=pk, model=Cart)
+    @action(
+        detail=False,
+        methods=["GET"],
+        permission_classes=(IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request):
+        shoping_list = "Список покупок:\n\n"
+        user = request.user
+        ingredients = (
+            IngredientRecipe.objects.filter(recipe__cart__user=user).values(
+                "ingredient__name",
+                "ingredient__measurement_unit",
+            ).annotate(total_amount=Sum("amount"))
+        )
+        for position, ingredient in enumerate(ingredients, start=1):
+            shoping_list += (
+                f'{ingredient["ingredient__name"]} '
+                f'{ingredient["total_amount"]} '
+                f'{ingredient["ingredient__measurement_unit"]}\n'
+            )
+        response = HttpResponse(shoping_list, "Content-Type: text/plain")
+        response["Content-Disposition"] = 'attachment; filename="BuyList.txt"'
+        return response
 
     @action(detail=True, methods=['POST'])
     def favorite(self, request, pk):
@@ -128,22 +168,22 @@ class TagViewSet(ModelViewSet):
     serializer_class = TagSerializer
 
 
-@api_view(['GET'])
-def download_shopping_cart(request):
-    ingredient_list = "Cписок покупок:"
-    ingredients = IngredientRecipe.objects.filter(
-        recipe__cart__user=request.user
-    ).values(
-        'ingredient__name', 'ingredient__measurement_unit'
-    ).annotate(amount=Sum('amount'))
-    for num, i in enumerate(ingredients):
-        ingredient_list += (
-            f"\n{i['ingredient__name']} - "
-            f"{i['amount']} {i['ingredient__measurement_unit']}"
-        )
-        if num < ingredients.count() - 1:
-            ingredient_list += ', '
-    file = 'shopping_list'
-    response = HttpResponse(ingredient_list, 'Content-Type: application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
-    return response
+# @api_view(['GET'])
+# def download_shopping_cart(request):
+#     ingredient_list = "Cписок покупок:"
+#     ingredients = IngredientRecipe.objects.filter(
+#         recipe__cart__user=request.user
+#     ).values(
+#         'ingredient__name', 'ingredient__measurement_unit'
+#     ).annotate(amount=Sum('amount'))
+#     for num, i in enumerate(ingredients):
+#         ingredient_list += (
+#             f"\n{i['ingredient__name']} - "
+#             f"{i['amount']} {i['ingredient__measurement_unit']}"
+#         )
+#         if num < ingredients.count() - 1:
+#             ingredient_list += ', '
+#     file = 'shopping_list'
+#     response = HttpResponse(ingredient_list, 'Content-Type: application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
+#     return response
