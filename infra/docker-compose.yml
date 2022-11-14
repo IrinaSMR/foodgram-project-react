@@ -9,7 +9,6 @@ services:
       - ./.env
   
   backend:
-    # image: irinasmr/foodgram-backend:latest
     build: ../backend
     restart: always
     volumes:
