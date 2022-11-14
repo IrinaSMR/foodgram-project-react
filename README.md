@@ -133,7 +133,7 @@ sudo docker-compose exec backend python manage.py collectstatic --no-input
 Выполните миграции:
 
 ```
-(опционально) sudo docker-compose exec backend python manage.py makemigrations (для всех приложений отдельно)
+sudo docker-compose exec backend python manage.py makemigrations (для всех приложений отдельно)
 sudo docker-compose exec backend python manage.py migrate --no-input (для всех приложений отдельно)
 ```
 
